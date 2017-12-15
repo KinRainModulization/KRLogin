@@ -157,13 +157,17 @@ static const NSInteger  kDefaultCountdownTimeInterval = 10;
     _loginBtn.backgroundColor = hasVaule ? GLOBAL_COLOR : RGB(240, 240, 240);
     [_loginBtn setTitleColor: hasVaule ? [UIColor whiteColor] : RGB(153, 153, 153) forState:UIControlStateNormal];
     _shadowView.layer.shadowColor = hasVaule ? GLOBAL_COLOR.CGColor : [UIColor whiteColor].CGColor;
+    
+    BOOL isPhoneNumber = _phoneTextField.text.length >= 11;
+    _smsBtn.userInteractionEnabled = isPhoneNumber;
+    [_smsBtn setTitleColor:isPhoneNumber ? GLOBAL_COLOR : UIColorFromHex(0x999999) forState:UIControlStateNormal];
+    _smsBtn.layer.borderColor = isPhoneNumber ? GLOBAL_COLOR.CGColor : UIColorFromHex(0x999999).CGColor;
 }
 
 - (void)passwordButtonClick {
     if ([self.delegate respondsToSelector:@selector(changePasswordLoginMode)]) {
         [self.delegate changePasswordLoginMode];
     };
-    MLog(@"passwordButtonClick");
 }
 
 - (void)smsCodeButtonClick:(LXCountdownButton *)button {
@@ -184,9 +188,11 @@ static const NSInteger  kDefaultCountdownTimeInterval = 10;
 
 - (void)clearTextButtonClick {
     _phoneTextField.text = @"";
+    [self textFieldTextChange:_phoneTextField];
 }
 
-- (void)visibleTextButtonClick {
+- (void)visibleTextButtonClick:(UIButton *)button {
+    button.selected = !button.selected;
     self.codeTextField.secureTextEntry = !_codeTextField.secureTextEntry;
     [self.codeTextField becomeFirstResponder];
 }
@@ -277,15 +283,15 @@ static const NSInteger  kDefaultCountdownTimeInterval = 10;
 - (LXCountdownButton *)smsBtn {
     if (!_smsBtn) {
         _smsBtn =[[LXCountdownButton alloc] initWithFrame:CGRectZero];
-        [_smsBtn setTitle:@"获取验证码" forState:UIControlStateNormal];
         _smsBtn.titleLabel.font = [UIFont systemFontOfSize:12];
-        [_smsBtn setTitleColor:GLOBAL_COLOR forState:UIControlStateNormal];
+        [_smsBtn setTitleColor:UIColorFromHex(0x999999) forState:UIControlStateNormal];
         _smsBtn.layer.cornerRadius = 12.5;
         _smsBtn.layer.masksToBounds = YES;
         _smsBtn.layer.borderWidth = 1;
-        _smsBtn.layer.borderColor = GLOBAL_COLOR.CGColor;
+        _smsBtn.layer.borderColor = UIColorFromHex(0x999999).CGColor;
         [_smsBtn sizeToFit];
         [_smsBtn addTarget:self action:@selector(smsCodeButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+        _smsBtn.userInteractionEnabled = NO;
     }
     return _smsBtn;
 }
@@ -293,8 +299,9 @@ static const NSInteger  kDefaultCountdownTimeInterval = 10;
 - (UIButton *)visibleTextBtn {
     if (!_visibleTextBtn) {
         _visibleTextBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_visibleTextBtn addTarget:self action:@selector(visibleTextButtonClick) forControlEvents:UIControlEventTouchUpInside];
-        [_visibleTextBtn setImage:[UIImage imageNamed:@"pwd_visible"] forState:UIControlStateNormal];
+        [_visibleTextBtn addTarget:self action:@selector(visibleTextButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+        [_visibleTextBtn setImage:[UIImage imageNamed:@"ped_invisile"] forState:UIControlStateNormal];
+        [_visibleTextBtn setImage:[UIImage imageNamed:@"pwd_visible"] forState:UIControlStateSelected];
         _visibleTextBtn.hidden = YES;
     }
     return _visibleTextBtn;
